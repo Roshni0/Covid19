@@ -1,0 +1,26 @@
+---
+title: "Covid Cases in R"
+output: html_notebook
+---
+# Covid Data Import
+
+This is where we get the data: https://opendata.ecdc.europa.eu/covid19/nationalcasedeath_eueea_daily_ei/xlsx/data.xlsx
+
+```{r}
+library(httr)
+library(readxl)
+
+url1 = "https://opendata.ecdc.europa.eu/covid19/nationalcasedeath_eueea_daily_ei/xlsx/data.xlsx"
+
+GET(url1, write_disk(tf <-  tempfile(fileext = ".xlsx")))
+
+df = read_excel((tf))
+```
+
+# Covid Data Clean Up
+
+This is cleaning up of the data. 
+
+```{r}
+sum(df$cases)
+```
