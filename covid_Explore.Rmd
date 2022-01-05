@@ -6,21 +6,47 @@ output: html_notebook
 
 This is where we get the data: https://opendata.ecdc.europa.eu/covid19/nationalcasedeath_eueea_daily_ei/xlsx/data.xlsx
 
-```{r}
+```{r include = FALSE}
 library(httr)
 library(readxl)
 
-url1 = "https://opendata.ecdc.europa.eu/covid19/nationalcasedeath_eueea_daily_ei/xlsx/data.xlsx"
-
+#url1 = "https://opendata.ecdc.europa.eu/covid19/nationalcasedeath_eueea_daily_ei/xlsx/data.xlsx"
+url1 = "https://opendata.ecdc.europa.eu/covid19/testing/xlsx/data.xlsx"
 GET(url1, write_disk(tf <-  tempfile(fileext = ".xlsx")))
 
 df = read_excel((tf))
 ```
 
-# Covid Data Clean Up
+# Key Stats
 
-This is cleaning up of the data. 
 
+
+```{r include = FALSE}
+total_deaths <- sum(df$deaths)
+```
+The have been `r total_deaths` total deaths since `r Sys.Date()`
+
+The features we have are: `r names(df)`.
+
+```{r include = FALSE}
+library(dplyr)
+#library(kableExtra)
+library(DT)
+edf <- df %>% group_by(countriesAndTerritories) %>% mutate(deathRate = sum(deaths)/sum(cases))
+#redf <- edf %>% head(100)
+#kable(redf) %>%
+ # kable_styling(bootstrap_options = "striped",full_width = F)
+datatable(
+  edf,extensions = 'Buttons', options = list(
+    dom = 'Bfrtip',
+    buttons=c('copy','csv','excel','pdf','print')
+  )
+)
+```
+
+# Graphing the data
 ```{r}
-sum(df$cases)
+library(ggplot2)
+edf %>% filter(deaths > 0) %>% group_by(`countriesAndTerritories`)%>% summarise(cases_total = sum(cases),deaths_total = sum(deaths)) %>% ggplot(aes(`countriesAndTerritories`))+geom_point(aes(y=cases_total,color="yellow")) + geom_point(aes(y=deaths_total,color="red")) + coord_flip()
+
 ```
